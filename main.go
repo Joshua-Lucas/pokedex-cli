@@ -105,6 +105,12 @@ func (c *config) getNext() error {
 }
 
 func (c *config) getPrev() error {
+	onFirstPage := false
+	if c.Previous == "" {
+		c.Previous = "https://pokeapi.co/api/v2/location-area/"
+		onFirstPage = true
+	}
+
 	locations, err := pokeapi.GetLocations(c.Previous)
 	if err != nil {
 		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
@@ -117,6 +123,10 @@ func (c *config) getPrev() error {
 	// Print content
 	for _, loc := range locations.Results {
 		fmt.Println(loc.Name)
+	}
+
+	if onFirstPage == true {
+		fmt.Println("you're on the first page")
 	}
 
 	return nil
