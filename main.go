@@ -33,6 +33,12 @@ func main() {
 		callback:    commandMap(&CONFIG),
 	}
 
+	CLI_COMMANDS["mapb"] = cliCommand{
+		name:        "mapb",
+		description: "Display the precious map locations",
+		callback:    commandMapBack(&CONFIG),
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -98,6 +104,24 @@ func (c *config) getNext() error {
 	return nil
 }
 
+func (c *config) getPrev() error {
+	locations, err := pokeapi.GetLocations(c.Previous)
+	if err != nil {
+		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
+	}
+
+	// Set next config
+	c.Next = locations.Next
+	c.Previous = locations.Previous
+
+	// Print content
+	for _, loc := range locations.Results {
+		fmt.Println(loc.Name)
+	}
+
+	return nil
+}
+
 func commandHelp(cfg *config, commands map[string]cliCommand) func() error {
 
 	return func() error {
@@ -135,6 +159,19 @@ func commandMap(cfg *config) func() error {
 		err := cfg.getNext()
 		if err != nil {
 			return fmt.Errorf("Error getting next locations: %v", err)
+		}
+
+		return nil
+	}
+}
+
+func commandMapBack(cfg *config) func() error {
+
+	return func() error {
+
+		err := cfg.getPrev()
+		if err != nil {
+			return fmt.Errorf("Error getting previous locations locations: %v", err)
 		}
 
 		return nil
