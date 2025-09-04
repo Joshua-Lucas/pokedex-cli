@@ -3,40 +3,40 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/Joshua-Lucas/pokedex-cli/internal/pokeapi"
+	"github.com/Joshua-Lucas/pokedex-cli/internal/cli"
 	"os"
 	"strings"
 )
 
 func main() {
-	CLI_COMMANDS := map[string]cliCommand{}
-	CONFIG := config{
+	CLI_COMMANDS := map[string]cli.Command{}
+	CONFIG := cli.Config{
 		Next:     "https://pokeapi.co/api/v2/location-area/",
 		Previous: "",
 	}
 
-	CLI_COMMANDS["exit"] = cliCommand{
-		name:        "exit",
-		description: "Exit the Pokedex",
-		callback:    commandExit(&CONFIG),
+	CLI_COMMANDS["exit"] = cli.Command{
+		Name:        "exit",
+		Description: "Exit the Pokedex",
+		Callback:    cli.Exit(&CONFIG),
 	}
 
-	CLI_COMMANDS["help"] = cliCommand{
-		name:        "help",
-		description: "Provides usage details to the user",
-		callback:    commandHelp(&CONFIG, CLI_COMMANDS),
+	CLI_COMMANDS["help"] = cli.Command{
+		Name:        "help",
+		Description: "Provides usage details to the user",
+		Callback:    cli.Help(&CONFIG, CLI_COMMANDS),
 	}
 
-	CLI_COMMANDS["map"] = cliCommand{
-		name:        "map",
-		description: "Displays map locations in our pokeman world",
-		callback:    commandMap(&CONFIG),
+	CLI_COMMANDS["map"] = cli.Command{
+		Name:        "map",
+		Description: "Displays map locations in our pokeman world",
+		Callback:    cli.Map(&CONFIG),
 	}
 
-	CLI_COMMANDS["mapb"] = cliCommand{
-		name:        "mapb",
-		description: "Display the precious map locations",
-		callback:    commandMapBack(&CONFIG),
+	CLI_COMMANDS["mapb"] = cli.Command{
+		Name:        "mapb",
+		Description: "Display the precious map locations",
+		Callback:    cli.MapBack(&CONFIG),
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -55,7 +55,7 @@ func main() {
 			command, ok := CLI_COMMANDS[val]
 
 			if ok {
-				command.callback()
+				command.Callback()
 			} else {
 				fmt.Println("Unknown command")
 			}
@@ -73,117 +73,4 @@ func cleanInput(text string) []string {
 	}
 
 	return cleanedInput
-}
-
-type cliCommand struct {
-	name        string
-	description string
-	callback    func() error
-}
-
-type config struct {
-	Next     string
-	Previous string
-}
-
-func (c *config) getNext() error {
-	locations, err := pokeapi.GetLocations(c.Next)
-	if err != nil {
-		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
-	}
-
-	// Set next config
-	c.Next = locations.Next
-	c.Previous = locations.Previous
-
-	// Print content
-	for _, loc := range locations.Results {
-		fmt.Println(loc.Name)
-	}
-
-	return nil
-}
-
-func (c *config) getPrev() error {
-	onFirstPage := false
-	if c.Previous == "" {
-		c.Previous = "https://pokeapi.co/api/v2/location-area/"
-		onFirstPage = true
-	}
-
-	locations, err := pokeapi.GetLocations(c.Previous)
-	if err != nil {
-		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
-	}
-
-	// Set next config
-	c.Next = locations.Next
-	c.Previous = locations.Previous
-
-	// Print content
-	for _, loc := range locations.Results {
-		fmt.Println(loc.Name)
-	}
-
-	if onFirstPage == true {
-		fmt.Println("you're on the first page")
-	}
-
-	return nil
-}
-
-func commandHelp(cfg *config, commands map[string]cliCommand) func() error {
-
-	return func() error {
-		fmt.Println("Welcome to the Pokedex!")
-		fmt.Println("Usage: ")
-		fmt.Println("")
-
-		for _, val := range commands {
-			if val.name == "help" {
-				continue
-			}
-
-			fmt.Printf("%s: %s\n", val.name, val.description)
-
-		}
-		return nil
-	}
-
-}
-
-func commandExit(cfg *config) func() error {
-
-	return func() error {
-		fmt.Println("Closing the Pokedex... Goodbye!")
-		os.Exit(0)
-
-		return nil
-	}
-}
-
-func commandMap(cfg *config) func() error {
-
-	return func() error {
-
-		err := cfg.getNext()
-		if err != nil {
-			return fmt.Errorf("Error getting next locations: %v", err)
-		}
-
-		return nil
-	}
-}
-
-func commandMapBack(cfg *config) func() error {
-
-	return func() error {
-
-		err := cfg.getPrev()
-		if err != nil {
-			return fmt.Errorf("Error getting previous locations locations: %v", err)
-		}
-
-		return nil
-	}
 }
