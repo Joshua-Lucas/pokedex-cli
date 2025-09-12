@@ -2,16 +2,20 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/Joshua-Lucas/pokedex-cli/internal/pokeapi"
+	"github.com/Joshua-Lucas/pokedex-cli/internal/pokecache"
 )
 
 type Config struct {
 	Next     string
 	Previous string
+	Cache    *pokecache.Cache
 }
 
 func (c *Config) getNext() error {
-	locations, err := pokeapi.GetLocations(c.Next)
+
+	locations, err := pokeapi.GetLocations(c.Next, c.Cache)
 	if err != nil {
 		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
 	}
@@ -35,7 +39,7 @@ func (c *Config) getPrev() error {
 		onFirstPage = true
 	}
 
-	locations, err := pokeapi.GetLocations(c.Previous)
+	locations, err := pokeapi.GetLocations(c.Previous, c.Cache)
 	if err != nil {
 		return fmt.Errorf("Error occurred when fetching map locations: %v", err)
 	}

@@ -3,9 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/Joshua-Lucas/pokedex-cli/internal/cli"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/Joshua-Lucas/pokedex-cli/internal/cli"
+	"github.com/Joshua-Lucas/pokedex-cli/internal/pokecache"
 )
 
 func main() {
@@ -13,6 +16,7 @@ func main() {
 	CONFIG := cli.Config{
 		Next:     "https://pokeapi.co/api/v2/location-area/",
 		Previous: "",
+		Cache:    pokecache.NewCache(5 * time.Second),
 	}
 
 	CLI_COMMANDS["exit"] = cli.Command{
