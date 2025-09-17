@@ -125,11 +125,11 @@ func GetLocations(url string, cache *pokecache.Cache) (pokeWorldLocationsData, e
 // Gets the pokemon in the specific location
 func GetPokemonInLocation(location string, cache *pokecache.Cache) ([]Pokemon, error) {
 	var pokemon []Pokemon
+
 	cachedVal, ok := cache.Get(location)
 
 	// If there is a value in the cache us that value
 	if ok {
-
 		data := pokeWorldLocationData{}
 		err := json.Unmarshal(cachedVal, &data)
 
@@ -168,7 +168,7 @@ func GetPokemonInLocation(location string, cache *pokecache.Cache) ([]Pokemon, e
 	}
 
 	// Store body value in cache
-	cache.Add(url, body)
+	cache.Add(location, body)
 
 	data := pokeWorldLocationData{}
 	err = json.Unmarshal(body, &data)
