@@ -8,12 +8,12 @@ import (
 type Command struct {
 	Name        string
 	Description string
-	Callback    func() error
+	Callback    func(s string) error
 }
 
-func Help(cfg *Config, commands map[string]Command) func() error {
+func Help(cfg *Config, commands map[string]Command) func(string) error {
 
-	return func() error {
+	return func(string) error {
 		fmt.Println("Welcome to the Pokedex!")
 		fmt.Println("Usage: ")
 		fmt.Println("")
@@ -31,9 +31,9 @@ func Help(cfg *Config, commands map[string]Command) func() error {
 
 }
 
-func Exit(cfg *Config) func() error {
+func Exit(cfg *Config) func(string) error {
 
-	return func() error {
+	return func(string) error {
 		fmt.Println("Closing the Pokedex... Goodbye!")
 		os.Exit(0)
 
@@ -41,9 +41,9 @@ func Exit(cfg *Config) func() error {
 	}
 }
 
-func Map(cfg *Config) func() error {
+func Map(cfg *Config) func(string) error {
 
-	return func() error {
+	return func(string) error {
 
 		err := cfg.getNext()
 		if err != nil {
@@ -54,9 +54,9 @@ func Map(cfg *Config) func() error {
 	}
 }
 
-func MapBack(cfg *Config) func() error {
+func MapBack(cfg *Config) func(string) error {
 
-	return func() error {
+	return func(string) error {
 
 		err := cfg.getPrev()
 		if err != nil {
@@ -65,4 +65,14 @@ func MapBack(cfg *Config) func() error {
 
 		return nil
 	}
+}
+
+func Explore(cfg *Config) func(string) error {
+
+	return func(arg string) error {
+		println(arg)
+		// logic goes here
+		return nil
+	}
+
 }

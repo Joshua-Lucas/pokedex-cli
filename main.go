@@ -43,6 +43,12 @@ func main() {
 		Callback:    cli.MapBack(&CONFIG),
 	}
 
+	CLI_COMMANDS["explore"] = cli.Command{
+		Name:        "explore",
+		Description: "Display the pokemon for a specific location",
+		Callback:    cli.Explore(&CONFIG),
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -54,17 +60,23 @@ func main() {
 
 		cleanedUserInput := cleanInput(rawUserInput)
 
-		for _, val := range cleanedUserInput {
+		if len(cleanedUserInput) >= 1 {
 
-			command, ok := CLI_COMMANDS[val]
+			command, ok := CLI_COMMANDS[cleanedUserInput[0]]
 
 			if ok {
-				command.Callback()
+				if len(cleanedUserInput) > 1 {
+					command.Callback(cleanedUserInput[1])
+
+				} else {
+					command.Callback("")
+				}
 			} else {
 				fmt.Println("Unknown command")
 			}
 
 		}
+
 	}
 
 }
