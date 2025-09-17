@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os"
+
+	"github.com/Joshua-Lucas/pokedex-cli/internal/pokeapi"
 )
 
 type Command struct {
@@ -70,8 +72,17 @@ func MapBack(cfg *Config) func(string) error {
 func Explore(cfg *Config) func(string) error {
 
 	return func(arg string) error {
-		println(arg)
-		// logic goes here
+
+		pokemon, err := pokeapi.GetPokemonInLocation(arg, cfg.Cache)
+
+		if err != nil {
+			return fmt.Errorf("Error occurred when fetching map locations: %v", err)
+		}
+
+		for _, p := range pokemon {
+			fmt.Println(p.Name)
+		}
+
 		return nil
 	}
 
